@@ -101,7 +101,8 @@ const endCallButton = document.querySelector("#endCallButton");
 endCallButton.addEventListener("click", (e) => {
 	peer.disconnect();
 	socket.emit("disconnect");
-    window.location = 'https://192.168.1.15:4050/home';
+    // window.location = 'https://192.168.1.15:4050/home';
+    window.location.pathname = '/home';
 });
 
 socket.on("createMessage", (message, userName) => {

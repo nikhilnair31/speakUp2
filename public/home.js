@@ -12,10 +12,13 @@ let goLiveButton = document.getElementById("goLiveButton");
 goLiveButton.addEventListener("click", (e) => {
     // 'https://192.168.1.15:4050/liveroom'
     // 'http://localhost:3050/liveroom'
-    window.location = 'https://192.168.1.15:4050/liveroom';
+    // window.location.pathname = '/relative-link'
+    // window.location = 'https://192.168.1.15:4050/liveroom';
+    window.location.pathname = '/liveroom';
 });
 
 let joinRoomButton = document.getElementById("joinRoomButton");
 joinRoomButton.addEventListener("click", (e) => {
-    window.location = 'http://localhost:3050/joinroom';
+    // window.location = 'http://localhost:3050/joinroom';
+    window.location.pathname = '/joinroom';
 });
