@@ -10,6 +10,7 @@
 	--main-darklg: #1b1b1b;
 	--main-dark: #141414;
 	--primary-color: #ed4e6b;
+	--button-accent-color: #ed4e6b;
 	--button-off-color: #ce1f4b;
 	--main-light: #ffffff;
     font-family: GothamLight, Sans-Serif;
@@ -92,11 +93,15 @@ video {
 	align-items: center;
 	background-color: var(--main-dark);
 	height: 50px;
-	border-radius: 5px;
+	border-radius: 10px;
 	color: var(--main-light);
 	font-size: 1rem;
 	width: 150px;
 	margin: 0 0.5rem;
+}
+
+.accent_button {
+	background-color: var(--button-accent-color);
 }
 
 .background__red {

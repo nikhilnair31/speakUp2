@@ -92,7 +92,7 @@ stopVideo.addEventListener("click", () => {
 const inviteButton = document.querySelector("#inviteButton");
 inviteButton.addEventListener("click", (e) => {
 	prompt(
-		"Copy this link and send it to people you want to meet with",
+		"Copy this link and send it to people to view this stream",
 		window.location.href
 	);
 });
@@ -101,7 +101,6 @@ const endCallButton = document.querySelector("#endCallButton");
 endCallButton.addEventListener("click", (e) => {
 	peer.disconnect();
 	socket.emit("disconnect");
-    // window.location = 'https://192.168.1.15:4050/home';
     window.location.pathname = '/home';
 });
 
@@ -109,8 +108,10 @@ socket.on("createMessage", (message, userName) => {
 	messages.innerHTML =
 		messages.innerHTML +
 		`<div class="message">
-        <b><i class="far fa-user-circle"></i> <span> ${userName === username ? "me" : userName
-		}</span> </b>
+        	<b>
+				<i class="far fa-user-circle"></i> 
+				<span> ${userName === username ? "me" : userName}</span> 
+			</b>
         <span class="msg_txt">${message}</span>
     </div>`;
 });

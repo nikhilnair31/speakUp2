@@ -57,7 +57,7 @@
 
 video {
 	/* height: 300px; */
-	border-radius: 1rem;
+	border-radius: 30px;
 	margin: 0.5rem;
 	/* width: 400px; */
 	object-fit: cover;
@@ -87,7 +87,7 @@ video {
 	align-items: center;
 	background-color: var(--main-dark);
 	height: 50px;
-	border-radius: 5px;
+	border-radius: 15px;
 	color: var(--main-light);
 	font-size: 1.2rem;
 	width: 50px;
@@ -125,7 +125,7 @@ video {
 	height: 50px;
 	flex: 1;
 	font-size: 1rem;
-	border-radius: 5px;
+	border-radius: 15px;
 	padding-left: 20px;
 	border: none;
 	color: var(--main-light);
@@ -160,7 +160,7 @@ video {
 	background-color: var(--main-dark);
 	margin: 1rem 0;
 	padding: 1rem;
-	border-radius: 5px;
+	border-radius: 15px;
 }
 
 #video-grid {
