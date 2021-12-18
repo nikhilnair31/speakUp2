@@ -2,7 +2,7 @@ const fs = require('fs');
 const http = require(`http`);
 const https = require(`https`);
 const express = require("express");
-const {MongoClient} = require('mongodb');
+// const {MongoClient} = require('mongodb');
 const port = process.env.port || 3050
 const options = {
 	key: fs.readFileSync('./Keys/key.pem'),
@@ -53,27 +53,27 @@ io.on("connection", (socket) => {
 	});
 });
 
-async function listDatabases(client){
-    databasesList = await client.db().admin().listDatabases();
-    console.log("Databases:");
-    databasesList.databases.forEach(db => console.log(` - ${db.name}`));
-};
+// async function listDatabases(client){
+//     databasesList = await client.db().admin().listDatabases();
+//     console.log("Databases:");
+//     databasesList.databases.forEach(db => console.log(` - ${db.name}`));
+// };
 
-async function main(){
-	const uri = "mongodb+srv://niknair31:idhome37@cluster0.0ls2m.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
-    const client = new MongoClient(uri);
-    try {
-        await client.connect();
-        await  listDatabases(client);
-    } 
-	catch (e) {
-        console.error(e);
-    } 
-	finally {
-        await client.close();
-    }
-}
-main().catch(console.error);
+// async function main(){
+// 	const uri = "mongodb+srv://niknair31:idhome37@cluster0.0ls2m.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+//     const client = new MongoClient(uri);
+//     try {
+//         await client.connect();
+//         await  listDatabases(client);
+//     } 
+// 	catch (e) {
+//         console.error(e);
+//     } 
+// 	finally {
+//         await client.close();
+//     }
+// }
+// main().catch(console.error);
 
 server.listen(port);
 servers.listen(4050);
