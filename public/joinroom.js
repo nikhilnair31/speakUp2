@@ -8,23 +8,20 @@ const username = prompt("Enter your name");
 
 const peer = new Peer()
 
-myVideoStream = new MediaStream();
-myVideo.srcObject = myVideoStream;
-myVideo.addEventListener("loadedmetadata", () => {
-	myVideo.play();
-	videoGrid.append(myVideo);
-});
+let myVideoStream;
+navigator.mediaDevices
+	.getUserMedia({ audio: true, video: false, })
+	.then((stream) => {
+		myVideoStream = new MediaStream();
+		addVideoStream(myVideo, myVideoStream);
+	});
 
 peer.on("call", (call) => {
 	call.answer();
 	const video = document.createElement("video");
 	call.on("stream", (userVideoStream) => {
 		liveStream = userVideoStream;
-		video.srcObject = userVideoStream;
-		video.addEventListener("loadedmetadata", () => {
-			video.play();
-			videoGrid.append(video);
-		});
+		addVideoStream(video, userVideoStream);
 	});
 });
 
@@ -33,13 +30,13 @@ peer.on("open", (userid) => {
 	socket.emit("join-room", ROOM_ID, userid, username);
 });
 
-// const addVideoStream = (video, stream) => {
-// 	video.srcObject = stream;
-// 	video.addEventListener("loadedmetadata", () => {
-// 		video.play();
-// 		videoGrid.append(video);
-// 	});
-// };
+const addVideoStream = (video, stream) => {
+	video.srcObject = stream;
+	video.addEventListener("loadedmetadata", () => {
+		video.play();
+		videoGrid.append(video);
+	});
+};
 
 let text = document.getElementById("chat_message");
 let send = document.getElementById("send");
@@ -101,13 +98,13 @@ inviteButton.addEventListener("click", (e) => {
 
 const endCallButton = document.querySelector("#endCallButton");
 endCallButton.addEventListener("click", (e) => {
-	peer.disconnect();
-	socket.emit("disconnect", ROOM_ID, userid, username);
-    window.location.pathname = '/home';
+	console.log(`endCallButton click`);
+	socket.emit("exit-room", ROOM_ID, username);
 });
 
-socket.on("user-disconnected", (userId)=>{
-	console.log("user-disconnected : ", userId);
+socket.on("user-exited-room", (userId)=>{
+	peer.disconnect();
+    window.location.pathname = '/home';
 });
 socket.on("createMessage", (message, userName) => {
 	messages.innerHTML =

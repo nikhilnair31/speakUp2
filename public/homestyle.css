@@ -76,6 +76,7 @@ video {
 	padding: 1rem;
 	display: flex;
 	background-color: var(--main-darklg);
+	justify-content: center;
 }
 
 .options__left {
@@ -182,6 +183,17 @@ video {
 	display: flex;
 	justify-content: center;
 	flex-wrap: wrap;
+	flex-direction: column;
+}
+
+#room-id {
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+	margin: 10px;
+	padding: 5px;
+	font-size: larger;
+	color: var(--main-light);
 }
 
 .header__back {

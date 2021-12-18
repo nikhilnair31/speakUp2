@@ -118,8 +118,8 @@ endCallButton.addEventListener("click", (e) => {
 	window.location.pathname = '/home';
 });
 
-socket.on("user-disconnected", (userId)=>{
-	console.log("user-disconnected : ", userId);
+socket.on("user-exited-room", (userId)=>{
+	console.log("user-exited-room : ", userId);
 });
 socket.on("createMessage", (message, userName) => {
 	messages.innerHTML =

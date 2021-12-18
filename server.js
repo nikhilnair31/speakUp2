@@ -71,8 +71,19 @@ app.use('/', require('./server/routes/router'));
 
 io.on("connection", (socket) => {
 	console.log('\nconnection');
+	socket.on('home-new-user', () => {
+		console.log('home-new-user');
+		database.ref('Rooms').once('value', function(snapshot) {
+			if (snapshot.val()) {
+				socket.emit('sent-active-rooms', Object.keys(snapshot.val()));
+			}
+			else {
+				socket.emit('sent-active-rooms', null);
+			}
+		});
+	});
 	socket.on("join-room", (roomId, userId, userName) => {
-		console.log('join-room user: ', userId, ' connected to: ', roomId);
+		console.log(`join-room\nuserName: ${userName}\nuserId: ${userId}\nroomId: ${roomId}`);
 		
 		// Add roomId as child to Rooms
 		var roomidRef = database.ref('Rooms').child(String(roomId));
@@ -86,6 +97,7 @@ io.on("connection", (socket) => {
 			else {
 				console.log("Rooom does not exist - ", snapshot.val());
 				database.ref('Rooms').child(String(roomId)).set({
+					streamer_count: 0,
 					viewer_count: 0
 				});
 			}
@@ -102,8 +114,9 @@ io.on("connection", (socket) => {
 			});
 		});
 	});
-	socket.on('disconnect', (roomId, userId, userName) => {
-		socket.emit('user-disconnected', userId);
+	socket.on('exit-room', (roomId, userId, userName) => {
+		console.log('exit-room - ', roomId, ' | ', userId, ' | ', userName);
+		socket.emit('user-exited-room', roomId, ' | ', userId, ' | ', userName);
 		
 		// Figure out way to get room_id and then reduce viewer count in firebase (maybe keep track of viewer id with socket only?)
 		// var roomidRef = database.ref('Rooms').child(String(roomId));
