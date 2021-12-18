@@ -1,38 +1,67 @@
 const socket = io('/');
 
 const videoGrid = document.getElementById("video-grid");
-const myVideo = document.createElement("video");
+// const myVideo = document.createElement("video");
+// myVideo.muted = true;
 
-myVideo.muted = true;
 const username = prompt("Enter your name");
+const peer = new Peer();
+localNullStream = new MediaStream();
 
-const peer = new Peer()
+// let myVideoStream;
+// navigator.mediaDevices
+// 	.getUserMedia({ audio: true, video: false, })
+// 	.then((stream) => {
+// 		console.log(`mediaDevices then((stream)`);
+// 		myVideoStream = new MediaStream();
+// 		addVideoStream(myVideo, myVideoStream);
+// 	});
 
-let myVideoStream;
-navigator.mediaDevices
-	.getUserMedia({ audio: true, video: false, })
-	.then((stream) => {
-		myVideoStream = new MediaStream();
-		addVideoStream(myVideo, myVideoStream);
+// myVideoStream = new MediaStream();
+// addVideoStream(myVideo, myVideoStream);
+
+socket.on("streamer-connected", (userId) => {
+	console.log(`streamer-connected`);
+	connectToNewStreamer(userId, localNullStream);
+});
+const connectToNewStreamer = (userId, stream) => {
+	console.log(`connectToNewStreamer`);
+	const call = peer.call(userId, stream);
+
+	const video = document.createElement("video");
+	video.muted = false;
+
+	call.on("stream", (userVideoStream) => {
+		console.log(`call.on('stream')`);
+		addVideoStream(video, userVideoStream);
 	});
+	call.on('close', () => {
+		console.log(`call.on('close')`);
+        video.remove()
+    })
+};
 
 peer.on("call", (call) => {
-	call.answer();
+	console.log(`peer.on call answer`);
+	call.answer(localNullStream);
 	const video = document.createElement("video");
-	call.on("stream", (userVideoStream) => {
-		liveStream = userVideoStream;
-		addVideoStream(video, userVideoStream);
+	video.muted = true;
+	call.on("stream", (remoteStream) => {
+		console.log(`call.on stream`);
+		addVideoStream(video, remoteStream);
 	});
 });
 
 peer.on("open", (userid) => {
 	console.log(`Room\nROOM_ID: ${ROOM_ID} | userid: ${userid} | username: ${username}`);
-	socket.emit("join-room", ROOM_ID, userid, username);
+	socket.emit("join-room-as-viewer", ROOM_ID, userid, username);
 });
 
 const addVideoStream = (video, stream) => {
+	console.log(`addVideoStream`);
 	video.srcObject = stream;
 	video.addEventListener("loadedmetadata", () => {
+		console.log(`loadedmetadata`);
 		video.play();
 		videoGrid.append(video);
 	});
@@ -102,11 +131,13 @@ endCallButton.addEventListener("click", (e) => {
 	socket.emit("exit-room", ROOM_ID, username);
 });
 
-socket.on("user-exited-room", (userId)=>{
+socket.on("streamer-exited-room", (userId)=>{
+	console.log("streamer-exited-room : ", userId);
 	peer.disconnect();
     window.location.pathname = '/home';
 });
 socket.on("createMessage", (message, userName) => {
+	console.log("createMessage");
 	messages.innerHTML =
 		messages.innerHTML +
 		`<div class="message">

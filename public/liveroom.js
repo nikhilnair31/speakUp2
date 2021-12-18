@@ -2,52 +2,79 @@ const socket = io('/');
 
 const videoGrid = document.getElementById("video-grid");
 const myVideo = document.createElement("video");
-
 myVideo.muted = true;
 
 const username = prompt("Enter your name");
-
 const peer = new Peer()
 
 let myVideoStream;
 navigator.mediaDevices
 	.getUserMedia({ audio: true, video: true, })
 	.then((stream) => {
+		console.log(`getUserMedia`);
 		myVideoStream = stream;
 		addVideoStream(myVideo, stream);
-
-		peer.on("call", (call) => {
-			call.answer(stream);
-			const video = document.createElement("video");
-			call.on("stream", (userVideoStream) => {
-				addVideoStream(video, userVideoStream);
-			});
-		});
-
-		socket.on("user-connected", (userId) => {
-			connectToNewUser(userId, stream);
-		});
 	});
 
-const connectToNewUser = (userId, stream) => {
-	const call = peer.call(userId, stream);
-	const video = document.createElement("video");
+peer.on("call", (call) => {
+	console.log(`peer on call answer: ${call}`);
+	call.answer(myVideoStream);
+	// const video = document.createElement("video");
 	call.on("stream", (userVideoStream) => {
+		console.log(`call on stream: ${userVideoStream}`);
+		// addVideoStream(video, userVideoStream);
+	});
+});
+
+// socket to check for either a viewer or a streamer connecting
+socket.on("streamer-connected", (userId) => {
+	connectToNewStreamer(userId, myVideoStream);
+});
+const connectToNewStreamer = (userId, stream) => {
+	console.log(`connectToNewStreamer`);
+	const call = peer.call(userId, stream);
+
+	const video = document.createElement("video");
+	video.muted = true;
+
+	call.on("stream", (userVideoStream) => {
+		console.log(`call.on('stream')`);
 		addVideoStream(video, userVideoStream);
 	});
 	call.on('close', () => {
+		console.log(`call.on('close')`);
+        video.remove()
+    })
+};
+
+socket.on("viewer-connected", (userId) => {
+	connectToNewViewer(userId, myVideoStream);
+});
+const connectToNewViewer = (viewerID, stream) => {
+	console.log(`connectToNewViewer`);
+	// Outgoing call that passes streamers local stream to the viewer userid
+	const call = peer.call(viewerID, stream);
+	
+	call.on("stream", (viewerStream) => {
+		console.log(`call.on('stream')`);
+		// addVideoStream(video, viewerStream);
+	});
+	call.on('close', () => {
+		console.log(`call.on('close')`);
         video.remove()
     })
 };
 
 peer.on("open", (userid) => {
-	console.log(`Room\nROOM_ID: ${ROOM_ID} | userid: ${userid} | username: ${username}`);
-	socket.emit("join-room", ROOM_ID, userid, username);
+	console.log(`peer on open room \nROOM_ID: ${ROOM_ID} \nuserid: ${userid} \nusername: ${username}`);
+	socket.emit("join-room-as-streamer", ROOM_ID, userid, username);
 });
 
 const addVideoStream = (video, stream) => {
+	console.log(`addVideoStream`);
 	video.srcObject = stream;
 	video.addEventListener("loadedmetadata", () => {
+		console.log(`loadedmetadata`);
 		video.play();
 		videoGrid.append(video);
 	});
@@ -118,10 +145,11 @@ endCallButton.addEventListener("click", (e) => {
 	window.location.pathname = '/home';
 });
 
-socket.on("user-exited-room", (userId)=>{
-	console.log("user-exited-room : ", userId);
+socket.on("streamer-exited-room", (userId)=>{
+	console.log("streamer-exited-room : ", userId);
 });
 socket.on("createMessage", (message, userName) => {
+	console.log("createMessage");
 	messages.innerHTML =
 		messages.innerHTML +
 		`<div class="message">

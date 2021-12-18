@@ -71,6 +71,7 @@ app.use('/', require('./server/routes/router'));
 
 io.on("connection", (socket) => {
 	console.log('\nconnection');
+
 	socket.on('home-new-user', () => {
 		console.log('home-new-user');
 		database.ref('Rooms').once('value', function(snapshot) {
@@ -82,8 +83,42 @@ io.on("connection", (socket) => {
 			}
 		});
 	});
-	socket.on("join-room", (roomId, userId, userName) => {
-		console.log(`join-room\nuserName: ${userName}\nuserId: ${userId}\nroomId: ${roomId}`);
+
+	socket.on("join-room-as-streamer", (roomId, userId, userName) => {
+		console.log(`join-room-as-streamer \nuserName: ${userName} \nuserId: ${userId} \nroomId: ${roomId}`);
+		
+		// Add roomId as child to Rooms
+		var roomidRef = database.ref('Rooms').child(String(roomId));
+		roomidRef.once('value', function(snapshot) {
+			if (snapshot.val()) {
+				console.log("Room exists - ", snapshot.val());
+				var roomCurrStreamerCount = snapshot.val().streamer_count;
+				var roomNewStreamerCount = ++roomCurrStreamerCount;
+				roomidRef.update({streamer_count: roomNewStreamerCount});
+			} 
+			else {
+				console.log("Rooom does not exist - ", snapshot.val());
+				database.ref('Rooms').child(String(roomId)).set({
+					streamer_count: 1,
+					viewer_count: 0
+				});
+			}
+		});
+
+		socket.join(roomId);
+		// This broadcast is to the server with the streamer's username to connect ot later on
+		socket.to(roomId).broadcast.emit("streamer-connected", userId);
+		socket.on("message", (message) => {
+			io.to(roomId).emit("createMessage", message, userName);
+
+			database.ref('Rooms').child(String(roomId)).child('Messages').push({
+				username: userName,
+				message: message
+			});
+		});
+	});
+	socket.on("join-room-as-viewer", (roomId, userId, userName) => {
+		console.log(`join-room-as-viewer \nuserName: ${userName} \nuserId: ${userId} \nroomId: ${roomId}`);
 		
 		// Add roomId as child to Rooms
 		var roomidRef = database.ref('Rooms').child(String(roomId));
@@ -96,15 +131,12 @@ io.on("connection", (socket) => {
 			} 
 			else {
 				console.log("Rooom does not exist - ", snapshot.val());
-				database.ref('Rooms').child(String(roomId)).set({
-					streamer_count: 0,
-					viewer_count: 0
-				});
 			}
 		});
 
 		socket.join(roomId);
-		socket.to(roomId).broadcast.emit("user-connected", userId);
+		// This broadcast is to the server with the viewer's username to connect ot later on
+		socket.to(roomId).broadcast.emit("viewer-connected", userId);
 		socket.on("message", (message) => {
 			io.to(roomId).emit("createMessage", message, userName);
 
