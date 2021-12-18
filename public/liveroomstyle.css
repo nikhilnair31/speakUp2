@@ -1,11 +1,18 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+@font-face {
+    font-family: GothamLight;
+    font-style: normal;
+    src: url('GothamLight.otf') format("opentype");
+    font-display: swap;
+}
 
 :root {
-	--main-darklg: #1d2635;
-	--main-dark: #161d29;
-	--primary-color: #2f80ec;
-	--main-light: #eeeeee;
-	font-family: "Poppins", sans-serif;
+	--main-darklg: #1b1b1b;
+	--main-dark: #141414;
+	--primary-color: #ed4e6b;
+	--button-off-color: #ce1f4b;
+	--main-light: #ffffff;
+    font-family: GothamLight, Sans-Serif;
 }
 
 * {
@@ -78,7 +85,7 @@ video {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	background-color: var(--primary-color);
+	background-color: var(--main-dark);
 	height: 50px;
 	border-radius: 5px;
 	color: var(--main-light);
@@ -88,14 +95,14 @@ video {
 }
 
 .background__red {
-	background-color: #f6484a;
+	background-color: var(--button-off-color);
 }
 
 .main__right {
 	display: flex;
 	flex-direction: column;
 	flex: 0.3;
-	background-color: #242f41;
+	background-color: var(--main-darklg);
 }
 
 .main__chat_window {
@@ -121,6 +128,8 @@ video {
 	border-radius: 5px;
 	padding-left: 20px;
 	border: none;
+	color: var(--main-light);
+	background-color: var(--main-dark);
 }
 
 .messages {
@@ -147,7 +156,8 @@ video {
 }
 
 .message > span {
-	background-color: #eeeeee;
+	color: var(--main-light);
+	background-color: var(--main-dark);
 	margin: 1rem 0;
 	padding: 1rem;
 	border-radius: 5px;

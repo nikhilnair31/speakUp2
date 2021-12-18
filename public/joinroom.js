@@ -111,6 +111,6 @@ socket.on("createMessage", (message, userName) => {
 		`<div class="message">
         <b><i class="far fa-user-circle"></i> <span> ${userName === username ? "me" : userName
 		}</span> </b>
-        <span>${message}</span>
+        <span class="msg_txt">${message}</span>
     </div>`;
 });
