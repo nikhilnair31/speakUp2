@@ -7,39 +7,43 @@ myVideo.muted = true;
 const username = prompt("Enter your name");
 const peer = new Peer()
 
-let myVideoStream;
+let localStream;
 navigator.mediaDevices
 	.getUserMedia({ audio: true, video: true, })
 	.then((stream) => {
 		console.log(`getUserMedia`);
-		myVideoStream = stream;
+		localStream = stream;
 		addVideoStream(myVideo, stream);
 	});
 
 peer.on("call", (call) => {
-	console.log(`peer on call answer: ${call}`);
-	call.answer(myVideoStream);
-	// const video = document.createElement("video");
-	call.on("stream", (userVideoStream) => {
-		console.log(`call on stream: ${userVideoStream}`);
-		// addVideoStream(video, userVideoStream);
+	console.log(`peer on call answer`);
+	call.answer(localStream);
+	
+	const video = document.createElement("video");
+	video.muted = true;
+
+	// the remote stream here can either be null if answering to a call from a viewer or real if answering from another streamer
+	call.on("stream", (remoteStream) => {
+		console.log(`call on stream`);
+		addVideoStream(video, remoteStream);
 	});
 });
 
 // socket to check for either a viewer or a streamer connecting
-socket.on("streamer-connected", (userId) => {
-	connectToNewStreamer(userId, myVideoStream);
+socket.on("streamer-connected", (newStreamerID) => {
+	connectToNewStreamer(newStreamerID, localStream);
 });
-const connectToNewStreamer = (userId, stream) => {
+const connectToNewStreamer = (newStreamerID, stream) => {
 	console.log(`connectToNewStreamer`);
-	const call = peer.call(userId, stream);
+	const call = peer.call(newStreamerID, stream);
 
 	const video = document.createElement("video");
 	video.muted = true;
 
-	call.on("stream", (userVideoStream) => {
+	call.on("stream", (newRemoteStream) => {
 		console.log(`call.on('stream')`);
-		addVideoStream(video, userVideoStream);
+		addVideoStream(video, newRemoteStream);
 	});
 	call.on('close', () => {
 		console.log(`call.on('close')`);
@@ -47,13 +51,13 @@ const connectToNewStreamer = (userId, stream) => {
     })
 };
 
-socket.on("viewer-connected", (userId) => {
-	connectToNewViewer(userId, myVideoStream);
+socket.on("viewer-connected", (newViewerID) => {
+	connectToNewViewer(newViewerID, localStream);
 });
-const connectToNewViewer = (viewerID, stream) => {
+const connectToNewViewer = (newViewerID, stream) => {
 	console.log(`connectToNewViewer`);
 	// Outgoing call that passes streamers local stream to the viewer userid
-	const call = peer.call(viewerID, stream);
+	const call = peer.call(newViewerID, stream);
 	
 	call.on("stream", (viewerStream) => {
 		console.log(`call.on('stream')`);
@@ -100,14 +104,14 @@ text.addEventListener("keydown", (e) => {
 
 const muteButton = document.querySelector("#muteButton");
 muteButton.addEventListener("click", () => {
-	const enabled = myVideoStream.getAudioTracks()[0].enabled;
+	const enabled = localStream.getAudioTracks()[0].enabled;
 	if (enabled) {
-		myVideoStream.getAudioTracks()[0].enabled = false;
+		localStream.getAudioTracks()[0].enabled = false;
 		html = `<i class="fas fa-microphone-slash"></i>`;
 		muteButton.classList.toggle("background__red");
 		muteButton.innerHTML = html;
 	} else {
-		myVideoStream.getAudioTracks()[0].enabled = true;
+		localStream.getAudioTracks()[0].enabled = true;
 		html = `<i class="fas fa-microphone"></i>`;
 		muteButton.classList.toggle("background__red");
 		muteButton.innerHTML = html;
@@ -116,14 +120,14 @@ muteButton.addEventListener("click", () => {
 
 const stopVideo = document.querySelector("#stopVideo");
 stopVideo.addEventListener("click", () => {
-	const enabled = myVideoStream.getVideoTracks()[0].enabled;
+	const enabled = localStream.getVideoTracks()[0].enabled;
 	if (enabled) {
-		myVideoStream.getVideoTracks()[0].enabled = false;
+		localStream.getVideoTracks()[0].enabled = false;
 		html = `<i class="fas fa-video-slash"></i>`;
 		stopVideo.classList.toggle("background__red");
 		stopVideo.innerHTML = html;
 	} else {
-		myVideoStream.getVideoTracks()[0].enabled = true;
+		localStream.getVideoTracks()[0].enabled = true;
 		html = `<i class="fas fa-video"></i>`;
 		stopVideo.classList.toggle("background__red");
 		stopVideo.innerHTML = html;

@@ -18,10 +18,11 @@ This app is build using NodeJS, Socket.io, and Peerjs(WebRTC)
 2. Start live stream or join a room.
 
 ### ToDo
-- [ ] - Track count of viewrs in a room
-- [ ] - Get some DB involved that keeps track of current live rooms
-- [ ] - Get data from DB of current live rooms and display the room ID on home page
-- [ ] - Make those room IDs joinable by clicking
+- [x] - Track count of viewrs in a room
+- [x] - Get data from DB of current live rooms and display the room ID on home page
+- [x] - Make those room IDs joinable by clicking
+- [ ] - Reduce count of viewrs once they exit a room
+- [ ] - Remove a room from DB once viewer and streamer count both = 0
 - [ ] - If a speaker in a room disconnects then remove his stream from all viewers and the remaining speakers
 - [ ] - Put a limit to max room speakers
-- [ ] - Use DB to save chat history as long as room is active
+- [ ] - Get chat history up until when a new viewer connects and display it on the side

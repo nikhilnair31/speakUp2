@@ -6,7 +6,27 @@ const videoGrid = document.getElementById("video-grid");
 
 const username = prompt("Enter your name");
 const peer = new Peer();
-localNullStream = new MediaStream();
+
+const createEmptyAudioTrack = () => {
+	const ctx = new AudioContext();
+	const oscillator = ctx.createOscillator();
+	const dst = oscillator.connect(ctx.createMediaStreamDestination());
+	oscillator.start();
+	const track = dst.stream.getAudioTracks()[0];
+	return Object.assign(track, { enabled: false });
+};
+const createEmptyVideoTrack = ({ width, height }) => {
+	const canvas = Object.assign(document.createElement('canvas'), { width, height });
+	canvas.getContext('2d').fillRect(0, 0, width, height);
+
+	const stream = canvas.captureStream();
+	const track = stream.getVideoTracks()[0];
+
+	return Object.assign(track, { enabled: false });
+};
+const audioTrack = createEmptyAudioTrack();
+const videoTrack = createEmptyVideoTrack({ width:640, height:480 });
+const localNullStream = new MediaStream([audioTrack, videoTrack]);
 
 // let myVideoStream;
 // navigator.mediaDevices
@@ -20,20 +40,20 @@ localNullStream = new MediaStream();
 // myVideoStream = new MediaStream();
 // addVideoStream(myVideo, myVideoStream);
 
-socket.on("streamer-connected", (userId) => {
+socket.on("streamer-connected", (newStreamerID) => {
 	console.log(`streamer-connected`);
-	connectToNewStreamer(userId, localNullStream);
+	connectToNewStreamer(newStreamerID, localNullStream);
 });
-const connectToNewStreamer = (userId, stream) => {
+const connectToNewStreamer = (newStreamerID, localNullStream) => {
 	console.log(`connectToNewStreamer`);
-	const call = peer.call(userId, stream);
+	const call = peer.call(newStreamerID, localNullStream);
 
 	const video = document.createElement("video");
 	video.muted = false;
 
-	call.on("stream", (userVideoStream) => {
+	call.on("stream", (remoteStream) => {
 		console.log(`call.on('stream')`);
-		addVideoStream(video, userVideoStream);
+		addVideoStream(video, remoteStream);
 	});
 	call.on('close', () => {
 		console.log(`call.on('close')`);
@@ -44,8 +64,10 @@ const connectToNewStreamer = (userId, stream) => {
 peer.on("call", (call) => {
 	console.log(`peer.on call answer`);
 	call.answer(localNullStream);
+
 	const video = document.createElement("video");
 	video.muted = true;
+
 	call.on("stream", (remoteStream) => {
 		console.log(`call.on stream`);
 		addVideoStream(video, remoteStream);
