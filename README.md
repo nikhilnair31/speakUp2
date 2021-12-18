@@ -1,6 +1,6 @@
 # speakUP V2
 
-![Alt text](favicon.jpg?raw=true "Title")
+![IMG](./favicon.png)
 
 speakUP is a live video debate app that makes it easy to debate people with a massive captive audience.
 Check out the live demo: https://speakup2.herokuapp.com/home
