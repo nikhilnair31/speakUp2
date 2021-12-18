@@ -75,5 +75,5 @@ io.on("connection", (socket) => {
 // }
 // main().catch(console.error);
 
-server.listen(port);
-servers.listen(4050);
+// server.listen(port);
+servers.listen(port);
