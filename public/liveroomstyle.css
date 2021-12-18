@@ -28,6 +28,7 @@
 	position: relative;
 	width: 100%;
 	background-color: var(--main-darklg);
+	color: var(--main-light);
 }
 
 .logo > h3 {
@@ -56,10 +57,10 @@
 }
 
 video {
-	/* height: 300px; */
+	height: 300px;
 	border-radius: 30px;
 	margin: 0.5rem;
-	/* width: 400px; */
+	width: 400px;
 	object-fit: cover;
 	transform: rotateY(180deg);
 	-webkit-transform: rotateY(180deg);
@@ -174,12 +175,12 @@ video {
 }
 
 .header__back {
-	display: none;
 	position: absolute;
-	font-size: 1.3rem;
-	top: 17px;
-	left: 28px;
+	left: 40px;
+	top: 30px;
+	font-size: 2rem;
 	color: #fff;
+	gap: 20px;
 }
 
 @media (max-width: 700px) {

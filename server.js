@@ -146,6 +146,7 @@ io.on("connection", (socket) => {
 			});
 		});
 	});
+	
 	socket.on('exit-room', (roomId, userId, userName) => {
 		console.log('exit-room - ', roomId, ' | ', userId, ' | ', userName);
 		socket.emit('user-exited-room', roomId, ' | ', userId, ' | ', userName);

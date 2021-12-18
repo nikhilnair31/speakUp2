@@ -26,3 +26,4 @@ This app is build using NodeJS, Socket.io, and Peerjs(WebRTC)
 - [ ] - If a speaker in a room disconnects then remove his stream from all viewers and the remaining speakers
 - [ ] - Put a limit to max room speakers
 - [ ] - Get chat history up until when a new viewer connects and display it on the side
+- [ ] - Add ability to stop video or audio from specific streamers?

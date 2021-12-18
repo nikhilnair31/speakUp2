@@ -1,8 +1,9 @@
 const socket = io('/');
 
+let text = document.getElementById("chat_message");
+let send = document.getElementById("send");
+let messages = document.querySelector(".messages");
 const videoGrid = document.getElementById("video-grid");
-// const myVideo = document.createElement("video");
-// myVideo.muted = true;
 
 const username = prompt("Enter your name");
 const peer = new Peer();
@@ -28,23 +29,8 @@ const audioTrack = createEmptyAudioTrack();
 const videoTrack = createEmptyVideoTrack({ width:640, height:480 });
 const localNullStream = new MediaStream([audioTrack, videoTrack]);
 
-// let myVideoStream;
-// navigator.mediaDevices
-// 	.getUserMedia({ audio: true, video: false, })
-// 	.then((stream) => {
-// 		console.log(`mediaDevices then((stream)`);
-// 		myVideoStream = new MediaStream();
-// 		addVideoStream(myVideo, myVideoStream);
-// 	});
-
-// myVideoStream = new MediaStream();
-// addVideoStream(myVideo, myVideoStream);
-
+// listening for "streamer-connected" socket emit from server to call the new streamer
 socket.on("streamer-connected", (newStreamerID) => {
-	console.log(`streamer-connected`);
-	connectToNewStreamer(newStreamerID, localNullStream);
-});
-const connectToNewStreamer = (newStreamerID, localNullStream) => {
 	console.log(`connectToNewStreamer`);
 	const call = peer.call(newStreamerID, localNullStream);
 
@@ -52,56 +38,52 @@ const connectToNewStreamer = (newStreamerID, localNullStream) => {
 	video.muted = false;
 
 	call.on("stream", (remoteStream) => {
-		console.log(`call.on('stream')`);
+		console.log(`streamer-connected stream`);
 		addVideoStream(video, remoteStream);
 	});
 	call.on('close', () => {
-		console.log(`call.on('close')`);
+		console.log(`streamer-connected close`);
         video.remove()
     })
-};
+});
 
+// listening for peerjs call from streamer to be answered
 peer.on("call", (call) => {
-	console.log(`peer.on call answer`);
+	console.log(`peer call answer`);
 	call.answer(localNullStream);
 
 	const video = document.createElement("video");
 	video.muted = true;
 
 	call.on("stream", (remoteStream) => {
-		console.log(`call.on stream`);
+		console.log(`peer call stream`);
 		addVideoStream(video, remoteStream);
 	});
 });
-
+// runs right after page loads
 peer.on("open", (userid) => {
-	console.log(`Room\nROOM_ID: ${ROOM_ID} | userid: ${userid} | username: ${username}`);
+	console.log(`JOIN peer open \nROOM_ID: ${ROOM_ID} | userid: ${userid} | username: ${username}`);
 	socket.emit("join-room-as-viewer", ROOM_ID, userid, username);
 });
 
 const addVideoStream = (video, stream) => {
-	console.log(`addVideoStream`);
+	// console.log(`addVideoStream`);
 	video.srcObject = stream;
 	video.addEventListener("loadedmetadata", () => {
-		console.log(`loadedmetadata`);
+		// console.log(`loadedmetadata`);
 		video.play();
 		videoGrid.append(video);
 	});
-};
+}
 
-let text = document.getElementById("chat_message");
-let send = document.getElementById("send");
-let messages = document.querySelector(".messages");
-
-send.addEventListener("click", (e) => {
-	if (text.value.length !== 0) {
+text.addEventListener("keydown", (e) => {
+	if (e.key === "Enter" && text.value.length !== 0) {
 		socket.emit("message", text.value);
 		text.value = "";
 	}
 });
-
-text.addEventListener("keydown", (e) => {
-	if (e.key === "Enter" && text.value.length !== 0) {
+send.addEventListener("click", (e) => {
+	if (text.value.length !== 0) {
 		socket.emit("message", text.value);
 		text.value = "";
 	}
@@ -141,13 +123,20 @@ stopVideo.addEventListener("click", () => {
 
 const inviteButton = document.querySelector("#inviteButton");
 inviteButton.addEventListener("click", (e) => {
+	var currlink = window.location.href;
+	var newlink = currlink.replace('liveroom', 'joinroom')
 	prompt(
 		"Copy this link and send it to people to view this stream",
-		window.location.href
+		newlink
 	);
 });
 
+const logoButton = document.querySelector(".logo");
 const endCallButton = document.querySelector("#endCallButton");
+logoButton.addEventListener("click", (e) => {
+	console.log(`logoButton click`);
+	socket.emit("exit-room", ROOM_ID, username);
+});
 endCallButton.addEventListener("click", (e) => {
 	console.log(`endCallButton click`);
 	socket.emit("exit-room", ROOM_ID, username);
@@ -159,7 +148,6 @@ socket.on("streamer-exited-room", (userId)=>{
     window.location.pathname = '/home';
 });
 socket.on("createMessage", (message, userName) => {
-	console.log("createMessage");
 	messages.innerHTML =
 		messages.innerHTML +
 		`<div class="message">
