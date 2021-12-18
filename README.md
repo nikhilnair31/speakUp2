@@ -16,3 +16,12 @@ This app is build using NodeJS, Socket.io, and Peerjs(WebRTC)
 ## How to use?
 1. Open `https://speakup2.herokuapp.com/home` to go to Home page.
 2. Start live stream or join a room.
+
+### ToDo
+- [ ] - Track count of viewrs in a room
+- [ ] - Get some DB involved that keeps track of current live rooms
+- [ ] - Get data from DB of current live rooms and display the room ID on home page
+- [ ] - Make those room IDs joinable by clicking
+- [ ] - If a speaker in a room disconnects then remove his stream from all viewers and the remaining speakers
+- [ ] - Put a limit to max room speakers
+- [ ] - Use DB to save chat history as long as room is active

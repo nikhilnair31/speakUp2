@@ -8,36 +8,38 @@ const username = prompt("Enter your name");
 
 const peer = new Peer()
 
-let myVideoStream;
-navigator.mediaDevices
-	.getUserMedia({ audio: true, video: false, })
-	.then((stream) => {
-		myVideoStream = new MediaStream();
-		addVideoStream(myVideo, myVideoStream);
+myVideoStream = new MediaStream();
+myVideo.srcObject = myVideoStream;
+myVideo.addEventListener("loadedmetadata", () => {
+	myVideo.play();
+	videoGrid.append(myVideo);
+});
 
-	});
-
-	peer.on("call", (call) => {
-		call.answer();
-		const video = document.createElement("video");
-		call.on("stream", (userVideoStream) => {
-			liveStream = userVideoStream;
-			addVideoStream(video, userVideoStream);
+peer.on("call", (call) => {
+	call.answer();
+	const video = document.createElement("video");
+	call.on("stream", (userVideoStream) => {
+		liveStream = userVideoStream;
+		video.srcObject = userVideoStream;
+		video.addEventListener("loadedmetadata", () => {
+			video.play();
+			videoGrid.append(video);
 		});
 	});
+});
 
 peer.on("open", (userid) => {
 	console.log(`Room\nROOM_ID: ${ROOM_ID} | userid: ${userid} | username: ${username}`);
 	socket.emit("join-room", ROOM_ID, userid, username);
 });
 
-const addVideoStream = (video, stream) => {
-	video.srcObject = stream;
-	video.addEventListener("loadedmetadata", () => {
-		video.play();
-		videoGrid.append(video);
-	});
-};
+// const addVideoStream = (video, stream) => {
+// 	video.srcObject = stream;
+// 	video.addEventListener("loadedmetadata", () => {
+// 		video.play();
+// 		videoGrid.append(video);
+// 	});
+// };
 
 let text = document.getElementById("chat_message");
 let send = document.getElementById("send");
@@ -100,10 +102,13 @@ inviteButton.addEventListener("click", (e) => {
 const endCallButton = document.querySelector("#endCallButton");
 endCallButton.addEventListener("click", (e) => {
 	peer.disconnect();
-	socket.emit("disconnect");
+	socket.emit("disconnect", ROOM_ID, userid, username);
     window.location.pathname = '/home';
 });
 
+socket.on("user-disconnected", (userId)=>{
+	console.log("user-disconnected : ", userId);
+});
 socket.on("createMessage", (message, userName) => {
 	messages.innerHTML =
 		messages.innerHTML +

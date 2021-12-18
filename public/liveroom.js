@@ -8,11 +8,6 @@ myVideo.muted = true;
 const username = prompt("Enter your name");
 
 const peer = new Peer()
-// var peer = new Peer(undefined, {
-// 	path: "/peerjs",
-// 	host: "/",
-// 	port: "3050",
-// });
 
 let myVideoStream;
 navigator.mediaDevices
@@ -123,6 +118,9 @@ endCallButton.addEventListener("click", (e) => {
 	window.location.pathname = '/home';
 });
 
+socket.on("user-disconnected", (userId)=>{
+	console.log("user-disconnected : ", userId);
+});
 socket.on("createMessage", (message, userName) => {
 	messages.innerHTML =
 		messages.innerHTML +

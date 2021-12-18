@@ -184,10 +184,6 @@ video {
 	flex-wrap: wrap;
 }
 
-#showChat {
-	display: none;
-}
-
 .header__back {
 	display: none;
 	position: absolute;
@@ -209,9 +205,5 @@ video {
 	video {
 		height: auto;
 		width: 100%;
-	}
-
-	#showChat {
-		display: flex;
 	}
 }
