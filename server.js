@@ -10,8 +10,8 @@ const options = {
 };
 const app = express();
 const server = http.Server(app);
-const servers = https.Server(options, app);
-const io = require('socket.io')(servers)
+// const servers = https.Server(options, app);
+const io = require('socket.io')(server)
 
 var totalOnlineCount = 0;
 
