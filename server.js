@@ -3,7 +3,7 @@ const http = require(`http`);
 const https = require(`https`);
 const express = require("express");
 // const {MongoClient} = require('mongodb');
-const port = process.env.port || 3050
+const port = process.env.PORT || 3050
 const options = {
 	key: fs.readFileSync('./Keys/key.pem'),
 	cert: fs.readFileSync('./Keys/cert.pem')
