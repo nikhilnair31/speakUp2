@@ -170,7 +170,10 @@ io.on("connection", (socket) => {
 			console.log('disconnected - ', snapshot.val());
 			var roomCurrStreamerCount = snapshot.val().streamer_count;
 			var roomNewStreamerCount = --roomCurrStreamerCount;
-			roomidRef.update({streamer_count: roomNewStreamerCount});
+			if(roomNewStreamerCount > 0)
+				roomidRef.update({streamer_count: roomNewStreamerCount});
+			else 
+				roomidRef.remove();
 		});
 	});
 });
