@@ -146,19 +146,32 @@ io.on("connection", (socket) => {
 			});
 		});
 	});
-	
-	socket.on('exit-room', (roomId, userId, userName) => {
-		console.log('exit-room - ', roomId, ' | ', userId, ' | ', userName);
-		socket.emit('user-exited-room', roomId, ' | ', userId, ' | ', userName);
+
+	socket.on('viewer-exiting-room', (roomId, exitingViewerUserName) => {
+		console.log('viewer-exiting-room - ', roomId, ' | ', exitingViewerUserName);
 		
 		// Figure out way to get room_id and then reduce viewer count in firebase (maybe keep track of viewer id with socket only?)
-		// var roomidRef = database.ref('Rooms').child(String(roomId));
-		// roomidRef.once('value', function(snapshot) {
-		// 	console.log('disconnected - ', snapshot.val());
-		// 	var roomCurrViewerCount = snapshot.val().viewer_count;
-		// 	var roomNewViewerCount = --roomCurrViewerCount;
-		// 	roomidRef.update({viewer_count: roomNewViewerCount});
-		// });
+		var roomidRef = database.ref('Rooms').child(String(roomId));
+		roomidRef.once('value', function(snapshot) {
+			console.log('disconnected - ', snapshot.val());
+			var roomCurrViewerCount = snapshot.val().viewer_count;
+			var roomNewViewerCount = --roomCurrViewerCount;
+			roomidRef.update({viewer_count: roomNewViewerCount});
+		});
+	});
+	socket.on('streamer-exiting-room', (roomId, exitingStreamerPeerID, exitingStreamerUserName) => {
+		console.log('streamer-exiting-room - ', roomId, ' | ', exitingStreamerPeerID, ' | ', exitingStreamerUserName);
+		socket.join(roomId);
+		socket.to(roomId).broadcast.emit('streamer-exited-room', roomId, exitingStreamerPeerID, exitingStreamerUserName);
+		
+		// Figure out way to get room_id and then reduce viewer count in firebase (maybe keep track of viewer id with socket only?)
+		var roomidRef = database.ref('Rooms').child(String(roomId));
+		roomidRef.once('value', function(snapshot) {
+			console.log('disconnected - ', snapshot.val());
+			var roomCurrStreamerCount = snapshot.val().streamer_count;
+			var roomNewStreamerCount = --roomCurrStreamerCount;
+			roomidRef.update({streamer_count: roomNewStreamerCount});
+		});
 	});
 });
 

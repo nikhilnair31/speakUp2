@@ -35,6 +35,7 @@ socket.on("streamer-connected", (newStreamerID) => {
 	const call = peer.call(newStreamerID, localNullStream);
 
 	const video = document.createElement("video");
+	video.setAttribute("id", newStreamerID);
 	video.muted = false;
 
 	call.on("stream", (remoteStream) => {
@@ -47,23 +48,31 @@ socket.on("streamer-connected", (newStreamerID) => {
     })
 });
 
+// runs right after page connects to peerjs server on loading
+peer.on("open", (localuserid) => {
+	console.log(`JOIN peer open \nROOM_ID: ${ROOM_ID} | userid: ${localuserid} | username: ${username}`);
+	socket.emit("join-room-as-viewer", ROOM_ID, localuserid, username);
+});
 // listening for peerjs call from streamer to be answered
 peer.on("call", (call) => {
-	console.log(`peer call answer`);
+	console.log(`peer on call answer- caller peerid: ${call.peer}`);
 	call.answer(localNullStream);
 
+	// call.peer gives peerid of the caller to the asnwerer
 	const video = document.createElement("video");
+	video.setAttribute("id", call.peer);
 	video.muted = true;
 
+	// the remote stream will be real since answering from another streamer
 	call.on("stream", (remoteStream) => {
 		console.log(`peer call stream`);
 		addVideoStream(video, remoteStream);
 	});
 });
-// runs right after page loads
-peer.on("open", (userid) => {
-	console.log(`JOIN peer open \nROOM_ID: ${ROOM_ID} | userid: ${userid} | username: ${username}`);
-	socket.emit("join-room-as-viewer", ROOM_ID, userid, username);
+// runs right peer.disconnect
+peer.on("disconnected", () => {
+	console.log(`peer on disconnected`);
+    window.location.pathname = '/home';
 });
 
 const addVideoStream = (video, stream) => {
@@ -135,17 +144,19 @@ const logoButton = document.querySelector(".logo");
 const endCallButton = document.querySelector("#endCallButton");
 logoButton.addEventListener("click", (e) => {
 	console.log(`logoButton click`);
-	socket.emit("exit-room", ROOM_ID, username);
+	socket.emit("viewer-exiting-room", ROOM_ID, username);
+	peer.disconnect();
 });
 endCallButton.addEventListener("click", (e) => {
 	console.log(`endCallButton click`);
-	socket.emit("exit-room", ROOM_ID, username);
+	socket.emit("viewer-exiting-room", ROOM_ID, username);
+	peer.disconnect();
 });
 
-socket.on("streamer-exited-room", (userId)=>{
-	console.log("streamer-exited-room : ", userId);
-	peer.disconnect();
-    window.location.pathname = '/home';
+socket.on("streamer-exited-room", (roomId, exitingStreamerPeerID, exitedStreamerUsername)=>{
+	console.log("streamer-exited-room : ", roomId, " | ", exitingStreamerPeerID, " | ", exitedStreamerUsername);
+	const whiochremotestreamervid = document.getElementById(exitingStreamerPeerID);
+	whiochremotestreamervid.remove();
 });
 socket.on("createMessage", (message, userName) => {
 	messages.innerHTML =
