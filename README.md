@@ -21,9 +21,11 @@ This app is build using NodeJS, Socket.io, and Peerjs(WebRTC)
 - [x] - Track count of viewrs in a room
 - [x] - Get data from DB of current live rooms and display the room ID on home page
 - [x] - Make those room IDs joinable by clicking
-- [ ] - Reduce count of viewrs once they exit a room
-- [ ] - Remove a room from DB once viewer and streamer count both = 0
-- [ ] - If a speaker in a room disconnects then remove his stream from all viewers and the remaining speakers
+- [x] - Reduce count of viewrs once they exit a room
+- [x] - Remove a room from DB once viewer and streamer count both = 0
+- [x] - If a speaker in a room disconnects then remove his stream from all viewers and the remaining speakers
+- [ ] - Remove all listeners from room once final streamer disconnects
+- [ ] - Deal with the counts if viewer/streamer quits the tab instead of exiting the room
 - [ ] - Put a limit to max room speakers
 - [ ] - Get chat history up until when a new viewer connects and display it on the side
 - [ ] - Add ability to stop video or audio from specific streamers?
